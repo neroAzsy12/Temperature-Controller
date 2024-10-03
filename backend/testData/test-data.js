@@ -1,6 +1,6 @@
 export const RASPBERRY_PI_IDs = {
     'rp1': {
-        "url": 'http://<RPI_I_IP>:5001',    // Replace with actual ID
+        "url": 'http://raspberrypi-temp-controller-01:5001',    // Replace with actual ID
         "devices": [
             "device01"
         ]
@@ -10,7 +10,7 @@ export const RASPBERRY_PI_IDs = {
 export const RS485_DEVICE_IDs = {
     'device01': {
         "raspberryPi": "rp1",
-        "port": "COM5",
+        "port": "/dev/ttyUSB0",
         "slaveAddress": 1,
         "mode": "ascii",
         "baudrate": 9600,
