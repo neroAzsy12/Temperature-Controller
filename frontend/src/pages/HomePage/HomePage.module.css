@@ -1,0 +1,95 @@
+/* HomePage.module.css */
+
+.container {
+  padding: 20px;
+  background-color: blue;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.lcd_display {
+  background-color: #c0c0c0; /* Light gray background */
+  border: 2px solid #000;   /* Black border */
+  padding: 10px;
+  font-family: 'Digital-7', monospace; /* Digital font */
+  font-size: 24px;
+  color: #000;
+  text-align: center;
+}
+
+.toggle {
+  margin-top: 20px;
+}
+
+button {
+  margin: 5px;
+  padding: 10px 15px;
+  cursor: pointer;
+  border: none;
+  border-radius: 5px;
+}
+
+.active {
+  background-color: #007bff;
+  color: white;
+}
+
+body {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #2e2e44;
+}
+
+.display {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  background: #2d2f41;
+  width: 425px;
+  padding: 20px 45px;
+  box-shadow: 0 5px 25px rgba(14, 21, 37, 0.8);
+  border-radius: 10px; 
+  margin: 45px;
+}
+
+.dot-menu-btn {
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin: 10px;
+  color: #efefef;
+  font-size: 1.5em;
+  cursor: pointer;
+}
+
+.dot-menu {
+  z-index: 999;
+  position: absolute;
+  top: 7px;
+  right: 5px;
+  list-style-type: none;   /* sets the marker for the list */
+  background: #353e54;
+  padding: 10px 20px;
+  border-radius: 5px;
+  box-shadow: 0 5px 25px rgba(0, 0, 0, 0.5);
+
+  visibility: hidden;
+  opacity: 0;
+  transition: 0.3s ease;
+}
+
+.dot-menu.active {
+  visibility: visible;
+  opacity: 1;
+}
+
+.menu-item {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

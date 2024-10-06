@@ -1,5 +1,5 @@
 import axios from "axios";
-import { RASPBERRY_PI_IDs, RS485_DEVICE_IDs } from "../testData/test-data";
+import { RASPBERRY_PI_IDs, RS485_DEVICE_IDs } from "../testData/test-data.js";
 
 export const setSetpoint = async(req, res) => {
     const raspberryPiId = req.params.raspberryDeviceId;

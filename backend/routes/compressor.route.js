@@ -4,12 +4,12 @@ import {
     setHy0Differential,
     readHy1Differential,
     setHy1Differential
- } from "../controllers/compressor.controller";
+ } from "../controllers/compressor.controller.js";
 
 const router = express.Router();
-router.get("/:raspberryDeviceId/:rs485DeviceId/hy0", readHy0Differential);
-router.post("/:raspberryDeviceId/:rs485DeviceId/hy0", setHy0Differential);
-router.get("/:raspberryDeviceId/:rs485DeviceId/hy1", readHy1Differential);
-router.post("/:raspberryDeviceId/:rs485DeviceId/hy1", setHy1Differential);
+router.get("/hy0/:raspberryDeviceId/:rs485DeviceId", readHy0Differential);
+router.post("/hy0/:raspberryDeviceId/:rs485DeviceId", setHy0Differential);
+router.get("/hy0/:raspberryDeviceId/:rs485DeviceId", readHy1Differential);
+router.post("/hy0/:raspberryDeviceId/:rs485DeviceId", setHy1Differential);
 
 export default router;

@@ -5,7 +5,7 @@ import {
     getT2ProbeStatus,
     enableT2Probe,
     disableT2Probe
-} from "../controllers/probe.controller";
+} from "../controllers/probe.controller.js";
 
 const router = express.Router();
 

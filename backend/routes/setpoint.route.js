@@ -6,7 +6,7 @@ import {
     setMinSetpoint,
     readMaxSetpoint,
     setMaxSetpoint
-} from "../controllers/setpoint.controller";
+} from "../controllers/setpoint.controller.js";
 
 const router = express.Router();
 

@@ -1,5 +1,5 @@
 import axios from "axios";
-import { RASPBERRY_PI_IDs, RS485_DEVICE_IDs } from "../testData/test-data";
+import { RASPBERRY_PI_IDs, RS485_DEVICE_IDs } from "../testData/test-data.js";
 
 export const getTemperatureT1 = async(req, res) => {
     const raspberryPiId = req.params.raspberryDeviceId;
@@ -14,7 +14,7 @@ export const getTemperatureT1 = async(req, res) => {
     }
 
     // check if raspberry pi id is valid
-    const raspberryPiUrl = RASPBERRY_PI_IDs[raspberryPiId];
+    const raspberryPiUrl = RASPBERRY_PI_IDs[raspberryPiId]["url"];
     if (!raspberryPiUrl) {
         return res.status(404).json({ message: "Raspberry Pi Device not found." });
     }
@@ -56,7 +56,7 @@ export const getTemperatureT2 = async(req, res) => {
     }
 
     // check if raspberry pi id is valid
-    const raspberryPiUrl = RASPBERRY_PI_IDs[raspberryPiId];
+    const raspberryPiUrl = RASPBERRY_PI_IDs[raspberryPiId]["url"];
     if (!raspberryPiUrl) {
         return res.status(404).json({ message: "Raspberry Pi Device not found." });
     }
@@ -72,9 +72,9 @@ export const getTemperatureT2 = async(req, res) => {
 
     const defaultUnit = 'C';                    // Default to Celsius
     const unit = req.query.unit || defaultUnit; // Get unit from query parameter or use default
-
+    
     try {
-        const response = await axios.get(`${raspberryPiUrl}/temperature-controller/api/v1/${rs485DeviceId}/probe/temperature/t1`, {
+        const response = await axios.get(`${raspberryPiUrl}/temperature-controller/api/v1/${rs485DeviceId}/probe/temperature/t2`, {
             params: {
                 unit: unit, // include the unit in the query params
             },
@@ -98,7 +98,7 @@ export const getT2ProbeStatus = async(req, res) => {
     }
 
     // check if raspberry pi id is valid
-    const raspberryPiUrl = RASPBERRY_PI_IDs[raspberryPiId];
+    const raspberryPiUrl = RASPBERRY_PI_IDs[raspberryPiId]["url"];
     if (!raspberryPiUrl) {
         return res.status(404).json({ message: "Raspberry Pi Device not found." });
     }
@@ -133,7 +133,7 @@ export const enableT2Probe = async(req, res) => {
     }
 
     // check if raspberry pi id is valid
-    const raspberryPiUrl = RASPBERRY_PI_IDs[raspberryPiId];
+    const raspberryPiUrl = RASPBERRY_PI_IDs[raspberryPiId]["url"];
     if (!raspberryPiUrl) {
         return res.status(404).json({ message: "Raspberry Pi Device not found." });
     }
@@ -168,7 +168,7 @@ export const disableT2Probe = async(req, res) => {
     }
 
     // check if raspberry pi id is valid
-    const raspberryPiUrl = RASPBERRY_PI_IDs[raspberryPiId];
+    const raspberryPiUrl = RASPBERRY_PI_IDs[raspberryPiId]["url"];
     if (!raspberryPiUrl) {
         return res.status(404).json({ message: "Raspberry Pi Device not found." });
     }
