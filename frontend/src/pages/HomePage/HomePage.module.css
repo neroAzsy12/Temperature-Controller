@@ -1,95 +1,204 @@
 /* HomePage.module.css */
-
-.container {
-  padding: 20px;
-  background-color: blue;
-  border-radius: 8px;
-  text-align: center;
+:root {
+  --border-color: #abb0ff;
 }
 
-.lcd_display {
-  background-color: #c0c0c0; /* Light gray background */
-  border: 2px solid #000;   /* Black border */
+.centered_title {
+  text-align: center; /* center text */
+  margin-top: 10px; 
+  margin-bottom: 30px; 
+  color: #000cbb;
+}
+
+.top_grid {
+  display: flex;
+  justify-content: space-around;
+  border: 1.5px solid var(--border-color);
   padding: 10px;
-  font-family: 'Digital-7', monospace; /* Digital font */
-  font-size: 24px;
-  color: #000;
-  text-align: center;
+  box-sizing: border-box;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 60px;
+  width: 95%;
+  flex-wrap: wrap;
 }
 
-.toggle {
+.top_grid_side_container {
+  flex: 1 1 10%;
+  border: 1.5px solid var(--border-color);
+  margin-right: 10px;
+  margin-left: 10px;
+  margin-bottom: 20px;
+  padding: 5px;
+}
+
+.top_grid_middle_container {
+  flex: 2 2 15%;
+  display: flex;
+  flex-direction: column;
+  border: 1.5px solid var(--border-color);
   margin-top: 20px;
+  padding: 5px;
 }
 
-button {
-  margin: 5px;
-  padding: 10px 15px;
-  cursor: pointer;
-  border: none;
+/* Used for System Row, Lights Row, Units Row */
+.top_grid_label_button_row {
+  display: flex;
+  width: 100%;
+  box-sizing: border;
+  justify-content: center;
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+
+/* Used in System Label, Lights Label, Units Label */
+.top_grid_label {
+  background-color: #121212;
+  display: inline-block;
+  font-size: 20px;
+  line-height: 10px;
+  padding: 10px;
+  border: 1.5px solid #ccc;
   border-radius: 5px;
+  width: 80%; /* Longer input width */
+  margin-right: 5px; /* Space between input and button */
+}
+.top_grid_label_2 {
+  text-align: center;
+  background-color: #121212;
+  display: inline-block;
+  font-size: 20px;
+  line-height: 10px;
+  padding: 10px 2px;
+  border: 1.5px solid #ccc;
+  border-radius: 5px;
+  width: 20%; /* Shorter input width */
 }
 
-.active {
-  background-color: #007bff;
+/* Used in System BTN, Lights BTN, Units BTN */
+.top_grid_btn {
+  background-color: #121212;
+  display: inline-block;
+  padding: 0;
+  width: 20%;
+  color: white;
+  font-size: 20px;
+  border: 1.5px solid #ccc;
+  border-radius: 5px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.top_grid_label_row {
+  display: flex;
+  width: 100%;
+  box-sizing: border;
+  justify-content: space-between;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.top_grid_medium_label {
+  background-color: #121212;
+  display: inline-block;
+  font-size: 20px;
+  line-height: 10px;
+  padding: 10px 20px;
+  border: 1.5px solid #ccc;
+  border-radius: 5px;
+  margin-right: 5px; /* Space between input and button */
+}
+
+.top_grid_small_label {
+  background-color: #121212;
+  display: inline-block;
+  text-align: center;
+  font-size: 20px;
+  line-height: 10px;
+  padding: 10px 20px;
+  border: 1.5px solid #ccc;
+  border-radius: 5px;
+  margin-right: 0; /* Space between input and button */
+  flex-shrink: 0;
+}
+
+
+.customMarginLeft {
+  margin-left: 10px;
+}
+
+.changeable_settings_grid {
+  display: flex;
+  justify-content: space-around;
+  border: 1.5px solid var(--border-color);
+  margin-top: 30px;
+  margin-left: auto;
+  margin-right: auto;
+  width: 95%;
+  flex-wrap: wrap;
+}
+
+.changeable_settings_container {
+  text-align: center;
+  background: #374b5b;
+  border: 1.5px solid black;
+  border-radius: 10px;
+  padding: 0;
+  flex: 1 1 15%;
+  margin: 10px;
+}
+
+label {
+  display: block;
+  font-weight: bold;
   color: white;
 }
 
-body {
-  min-height: 100vh;
+.changeable_label_container {
+  padding: 10px 0;
+  background-color: #302c2c;
+  color: white;
+  font-weight: bold;
+  width: 100%;
+  box-sizing: border;
+  border-bottom: 1.5px solid black;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+}
+
+.changeable_settings_h1 {
+  font-size: 50px;
+  color: rgb(160, 160, 255);
+  margin-top: 5px;
+  margin-bottom: 10px;
+}
+
+.input_button_row {
   display: flex;
+  width: 100%;
+  box-sizing: border;
   justify-content: center;
-  align-items: center;
-  background: #2e2e44;
+  margin-top: 5px;
+  margin-bottom: 5px;
 }
 
-.display {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  color: #ffffff;
-  background: #2d2f41;
-  width: 425px;
-  padding: 20px 45px;
-  box-shadow: 0 5px 25px rgba(14, 21, 37, 0.8);
-  border-radius: 10px; 
-  margin: 45px;
-}
-
-.dot-menu-btn {
-  position: absolute;
-  top: 0;
-  right: 0;
-  margin: 10px;
-  color: #efefef;
-  font-size: 1.5em;
-  cursor: pointer;
-}
-
-.dot-menu {
-  z-index: 999;
-  position: absolute;
-  top: 7px;
-  right: 5px;
-  list-style-type: none;   /* sets the marker for the list */
-  background: #353e54;
-  padding: 10px 20px;
+.changeable_settings_input {
+  padding: 5px;
+  border: 1.5px solid #ccc;
   border-radius: 5px;
-  box-shadow: 0 5px 25px rgba(0, 0, 0, 0.5);
-
-  visibility: hidden;
-  opacity: 0;
-  transition: 0.3s ease;
+  width: 40%; /* Longer input width */
+  margin-left: 10px;
+  margin-right: 5px; /* Space between input and button */
 }
 
-.dot-menu.active {
-  visibility: visible;
-  opacity: 1;
-}
-
-.menu-item {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+.changeable_settings_btn {
+  padding: 5px 10px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  flex-shrink: 0;
+  margin-right: 10px;
+  margin-left: 5px;
 }
