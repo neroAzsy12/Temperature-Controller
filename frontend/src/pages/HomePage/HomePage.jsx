@@ -1,68 +1,178 @@
 import React, { useState, useEffect } from 'react';
 import styles from './HomePage.module.css'; 
+import axios from 'axios';
 
 const HomePage = () => {
-  // const [temperature1, setTemperature1] = useState(0);
-  // const [probe1, setProbe1] = useState("");
-  // const [probe1Unit, setProbe1Unit] = useState('C');
+  const [data, setData] = useState(null);
 
-  // const [temperature2, setTemperature2] = useState(0);
-  // const [probe2, setProbe2] = useState("");
-  // const [probe2Unit, setProbe2Unit] = useState('C');
+  const [loading, setLoading] = useState(true);
 
-  // const [unit, setUnit] = useState('C'); // Default unit is Celsius
+  const [standbyMode, setStandbyMode] = useState('OFF');
 
-  // useEffect(() => {
-  //   const fetchTemperature = async () => {
-  //     try {
-  //       const response = await fetch('http://localhost:3000/api/v1/probes/rp1/device01/temperature/t1'); 
-  //       const data1 = await response.json();
-  //       setTemperature1(data1.temperature);
-  //       setProbe1(data1.probe)
-  //       setProbe1Unit(data1.unit);
+  const [t1, setT1] = useState(0);
+  const [t2, setT2] = useState(0);
+  
+  const [doorHeaterStatus, setDoorHeaterStatus] = useState("OFF")
+  const [evaporatorFanStatus, setEvaporatorFanStatus] = useState("OFF")
+  const [compressorStatus, setCompressorStatus] = useState("OFF")
+  const [defrostStatus, setDefrostStatus] = useState("OFF")
 
-  //       const response2 = await fetch('http://localhost:3000/api/v1/probes/rp1/device01/temperature/t2'); 
-  //       const data2 = await response2.json();
-  //       setTemperature2(data2.temperature);
-  //       setProbe2(data2.probe)
-  //       setProbe2Unit(data2.unit);
+  const [SPL, setSPL] = useState(0);
+  const [SP, setSP] = useState(0);
+  const [SPH, setSPH] = useState(0);
+  const [HY0, setHY0] = useState(0);
+  const [HY1, setHY1] = useState(0);
 
-  //     } catch (error) {
-  //       console.error('Error fetching from Probe:', error);
-  //     }
-  //   };
+  const [temp_unit, setUnit] = useState('F');
 
-  //   fetchTemperature();
-  //   const intervalId = setInterval(fetchTemperature, 60000); // Fetch every minute
+  // const fetchCabinetStatus = async() => {
+  //   try {
+  //     const baseURL = 'http://localhost:3000/api/v1/cabinet/rp1/device01/cabinet/status'
+  //     const params = new URLSearchParams({ unit: temp_unit });
+  //     const urlWithParams = `${baseURL}?${params.toString()}`;
+      
+  //     const response = await fetch(urlWithParams)
+  //     const data = await response.json();
 
-  //   return () => clearInterval(intervalId); // Cleanup on unmount
-  // }, []);
-
-  // const convertTemperature = (unitToSet) => {
-  //   if (unitToSet === 'C') {
-
+  //     setT1(data.temperatures["T1"]);
+  //     setT2(data.temperatures["T2"]);
+  //     setEvaporatorFanStatus(data.evap_fan_status)
+  //     setCompressorStatus(data.compressor_status)
+  //     setDefrostStatus(data.defrost_status)
+  //   } catch (error) {
+  //     console.error(`Error fetching temperatures:`, error);
   //   }
   // };
+
+  const fetchCabinetStatus = async() => {
+    try {
+      const response = await axios.get('http://localhost:3000/api/v1/cabinet/rp1/device01/cabinet/status', {
+        params: {
+          unit: temp_unit
+        }
+      });
+      setData(response.data);
+    } catch (err) {
+      console.error("Failed to update temperatures", err);
+    }
+  };
+
+  // const fetchConfigurableSettings = async() => {
+  //   try {
+  //     const response = await axios.get("http://localhost:3000/api/v1/cabinet/rp1/device01/cabinet/configurable-settings", {
+  //       params: {
+  //         unit: temp_unit
+  //       }
+  //     });
+  //     setData1(response.data);
+  //   } catch (error) {
+  //     console.error("Failed to get settings:", error);
+  //   }
+  // };
+
+  const convertTemperature = () => {
+    const unit = event.target.value;
+    setUnit(unit);
+
+    const baseURL = 'http://localhost:3000/api/v1/probes/rp1/device01/temperature/all'
+    const params = new URLSearchParams({ unit: temp_unit });
+    const urlWithParams = `${baseURL}?${params.toString()}`;
+  };
+
+  const activateStandby = () => {
+    try {
+      const mode = event.target.value;
+      let url;
+      if (mode === "ON") {
+        url = 'http://localhost:3000/api/v1/standby/rp1/device01/standby/on';
+      } else {
+        url = 'http://localhost:3000/api/v1/standby/rp1/device01/standby/off';
+      }
+      
+      const requestOptions = {
+        method: 'post',
+        headers: { 
+          'Content-Type': 'application/json; charset=UTF-8' 
+        }
+      };
+
+      fetch(url, requestOptions)
+        .then(setStandbyMode(mode))
+        .catch(error => console.error(error));
+    } catch (error) {
+      console.error(`Error in standby mode:`, error)
+    } 
+  };
+
+  const checkLoading = () => {
+    if (data) {
+      setLoading(false);
+    }
+  };
+
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     setLoading(true);
+  //     await Promise.all([fetchCabinetStatus(), fetchConfigurableSettings()]);
+  //     checkLoading();
+  //   };
+
+  //   fetchData();
+  //   const interval = setInterval(() => {
+  //     fetchCabinetStatus();
+  //   }, 60000);
+
+  //   return () => clearInterval(interval);
+  // }, []);
+
+  useEffect(() => {
+    // set up interval to fetch temperatures every 5 minutes
+    fetchCabinetStatus();
+    const interval = setInterval(() => {
+      fetchCabinetStatus();
+    }, 60000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  // useEffect(() => {
+  //   fetchConfigurableSettings();
+  // }, []);
+
+  useEffect(() => {
+    checkLoading();
+  }, [data]);
+
+  if (loading) {
+    return (
+      <div>
+        <h1 className={styles.centered_title}>TEMPERATURE CONTROLLER</h1>
+        <span className={styles.loader}></span>
+      </div>
+    )
+  }
 
   return (
     <div>
       <h1 className={styles.centered_title}>TEMPERATURE CONTROLLER</h1>
-
-      {/* Top Row for displaying status, and turning system on/off, setting unit (F/C) */}
       <div className={styles.top_grid}>
         <div className={styles.top_grid_side_container}>
           <div className={styles.top_grid_label_button_row}>
             <label className={styles.top_grid_label}>SYSTEM:</label>
-            <button className={styles.top_grid_btn}>ON</button>
+            <button 
+              className={ data["standby_mode"] === "ON" ? `${styles.top_grid_btn} ${styles.inactive_btn_color}` : `${styles.top_grid_btn} ${styles.active_btn_color}` } 
+              value={data["standby_mode"] === 'ON' ? 'OFF' : 'ON'}
+              onClick={activateStandby}
+            >{data["standby_mode"] === 'OFF' ? 'ON' : 'OFF'}</button>
           </div>
           <div className={styles.top_grid_label_row}>
             <div>
               <label className={styles.top_grid_medium_label}>T1</label>
-              <label className={styles.top_grid_small_label}>88</label>
+              <label className={styles.top_grid_small_label}>{data["temperatures"]["T1"]}</label>
             </div>
             <div>
               <label className={styles.top_grid_medium_label}>T2</label>
-              <label className={styles.top_grid_small_label}>-5</label>
+              <label className={styles.top_grid_small_label}>{data["temperatures"]["T2"]}</label>
             </div>
           </div>
         </div>
@@ -71,21 +181,21 @@ const HomePage = () => {
           <div className={styles.top_grid_label_row}>
             <div className={styles.top_grid_label_button_row}>
               <label className={styles.top_grid_label}>DOOR HEATER:</label>
-              <label className={styles.top_grid_label_2}>ON</label>
+              <label className={ doorHeaterStatus === "ON" ? `${styles.top_grid_label_2} ${styles.active_btn_color}` : `${styles.top_grid_label_2} ${styles.inactive_btn_color}` } >{doorHeaterStatus}</label>
             </div>
             <div className={ `${styles.top_grid_label_button_row} ${styles.customMarginLeft}`}>
               <label className={styles.top_grid_label}>DEFROST:</label>
-              <button className={styles.top_grid_btn}>ON</button>
+              <label className={ data["defrost_status"] === "ON" ? `${styles.top_grid_label_2} ${styles.active_btn_color}` : `${styles.top_grid_label_2} ${styles.inactive_btn_color}` } >{data["defrost_status"]}</label>
             </div>
           </div>
           <div className={styles.top_grid_label_row}>
               <div className={styles.top_grid_label_button_row}>
                 <label className={styles.top_grid_label}>EVAP FAN:</label>
-                <label className={styles.top_grid_label_2}>ON</label>
-              </div>
+                <label className={ data["evap_fan_status"] === "ON" ? `${styles.top_grid_label_2} ${styles.active_btn_color}` : `${styles.top_grid_label_2} ${styles.inactive_btn_color}` } >{data["evap_fan_status"]}</label>
+                </div>
               <div className={ `${styles.top_grid_label_button_row} ${styles.customMarginLeft}`}>
                 <label className={styles.top_grid_label}>COMPRESSOR:</label>
-                <label className={styles.top_grid_label_2}>ON</label>
+                <label className={ data["compressor_status"] === "ON" ? `${styles.top_grid_label_2} ${styles.active_btn_color}` : `${styles.top_grid_label_2} ${styles.inactive_btn_color}` } >{data["compressor_status"]}</label>
               </div>
           </div>
         </div>
@@ -97,7 +207,11 @@ const HomePage = () => {
           </div>
           <div className={styles.top_grid_label_button_row}>
             <label className={styles.top_grid_label}>UNITS:</label>
-            <button className={styles.top_grid_btn}>F/C</button>
+            <button 
+              className={`${styles.top_grid_btn} ${styles.active_btn_color}`}
+              value={temp_unit === 'C' ? 'F' : 'C'}
+              onClick={convertTemperature}  
+            >º{temp_unit}</button>
           </div>
         </div>
       </div>
@@ -108,7 +222,7 @@ const HomePage = () => {
           <div className={styles.changeable_label_container}>
             <label>SET POINT LOW</label>
           </div>
-          <h1 className={styles.changeable_settings_h1}>20ºC</h1>
+          <h1 className={styles.changeable_settings_h1}>{data["setpoints"]["SPL"]}º{temp_unit}</h1>
           <div className={styles.input_button_row}>
             <input
               className={styles.changeable_settings_input}
@@ -122,7 +236,7 @@ const HomePage = () => {
           <div className={styles.changeable_label_container}>
             <label>SET POINT</label>
           </div>
-          <h1 className={styles.changeable_settings_h1}>20ºC</h1>
+          <h1 className={styles.changeable_settings_h1}>{data["setpoints"]["SP"]}º{temp_unit}</h1>
           <div className={styles.input_button_row}>
             <input
               className={styles.changeable_settings_input}
@@ -136,7 +250,7 @@ const HomePage = () => {
           <div className={styles.changeable_label_container}>
             <label>SET POINT HIGH</label>
           </div>
-          <h1 className={styles.changeable_settings_h1}>20ºC</h1>
+          <h1 className={styles.changeable_settings_h1}>{data["setpoints"]["SPH"]}º{temp_unit}</h1>
           <div className={styles.input_button_row}>
             <input
               className={styles.changeable_settings_input}
@@ -150,7 +264,7 @@ const HomePage = () => {
           <div className={styles.changeable_label_container}>
             <label>HY0</label>
           </div>
-          <h1 className={styles.changeable_settings_h1}>20ºC</h1>
+          <h1 className={styles.changeable_settings_h1}>{data["differentials"]["HY0"]}</h1>
           <div className={styles.input_button_row}>
             <input
               className={styles.changeable_settings_input}
@@ -164,7 +278,7 @@ const HomePage = () => {
           <div className={styles.changeable_label_container}>
             <label>HY1</label>
           </div>
-          <h1 className={styles.changeable_settings_h1}>20ºC</h1>
+          <h1 className={styles.changeable_settings_h1}>{data["differentials"]["HY1"]}</h1>
           <div className={styles.input_button_row}>
             <input
               className={styles.changeable_settings_input}
@@ -181,27 +295,15 @@ const HomePage = () => {
           <div className={styles.changeable_label_container}>
             <label>T1</label>
           </div>
-          <h1 className={styles.changeable_settings_h1}>20ºC</h1>
+          <h1 className={styles.changeable_settings_h1}>{data["temperatures"]["T1"]}º{temp_unit}</h1>
         </div>
         <div className={styles.changeable_settings_container}>
           <div className={styles.changeable_label_container}>
             <label>T2</label>
           </div>
-          <h1 className={styles.changeable_settings_h1}>20ºC</h1>
+          <h1 className={styles.changeable_settings_h1}>{data["temperatures"]["T2"]}º{temp_unit}</h1>
         </div>
       </div>
-      {/* <div className={styles.display}>
-        <h1>Probe: {probe1}</h1>
-        <h2>{temperature1?.toFixed(2)}°{probe1Unit}</h2>
-        <div className={styles.toggle}>
-        </div>
-      </div>
-      <div className={styles.display}>
-        <h1>Probe: {probe2}</h1>
-        <h2>{temperature2?.toFixed(2)}°{probe2Unit}</h2>
-        <div className={styles.toggle}>
-        </div>
-      </div> */}
     </div>
   );
 };

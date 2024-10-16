@@ -1,5 +1,6 @@
 import express from "express";
 import {
+    getTemperatures,
     getTemperatureT1,
     getTemperatureT2,
     getT2ProbeStatus,
@@ -9,6 +10,7 @@ import {
 
 const router = express.Router();
 
+router.get("/:raspberryDeviceId/:rs485DeviceId/temperature/all", getTemperatures);
 router.get("/:raspberryDeviceId/:rs485DeviceId/temperature/t1", getTemperatureT1);
 router.get("/:raspberryDeviceId/:rs485DeviceId/temperature/t2", getTemperatureT2);
 router.get("/:raspberryDeviceId/:rs485DeviceId/status/t1", getT2ProbeStatus);
