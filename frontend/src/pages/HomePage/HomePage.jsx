@@ -53,7 +53,7 @@ const HomePage = () => {
   useEffect(() => {
     fetchData();
 
-    const interval = setInterval(fetchData, 6000);
+    const interval = setInterval(fetchData, 20000);
     return () => clearInterval(interval);
   }, []);
 
@@ -79,11 +79,11 @@ const HomePage = () => {
       } else {
         response = await axios.post('http://localhost:3000/api/v1/cabinet/rp1/device01/cabinet/standby/off')
       }
-      console.log("testing")
       setData((prevData) => ({
         ...prevData,
         standby_mode: response.data["standby_mode"],
         status: {
+          ...prevData.status,
           evap_fan_status: response.data["status"]["evap_fan_status"],
           compressor_status: response.data["status"]["compressor_status"],
           door_heater_status: response.data["status"]["door_heater_status"],
@@ -94,6 +94,28 @@ const HomePage = () => {
     } catch (error) {
       console.error(`Error in standby mode:`, error)
     } 
+  };
+
+  const activateCabinetLights = async(e) => {
+    try {
+      const lights_enabled = e.target.value;
+      let response;
+      if (lights_enabled === "ON") {
+        response = await axios.post('http://localhost:3000/api/v1/cabinet/rp1/device01/cabinet/light/on')
+      } else {
+        response = await axios.post('http://localhost:3000/api/v1/cabinet/rp1/device01/cabinet/light/off')
+      }
+      setData((prevData) => ({
+        ...prevData,
+        status: {
+          ...prevData.status,
+          cabinet_lights_status: response.data["cabinet_lights_status"]
+        }
+      }));
+
+    } catch (error) {
+      console.error(`Error in lights:`, error)
+    }
   };
 
   // SPL, SP, SPH logic
@@ -280,7 +302,11 @@ const HomePage = () => {
         <div className={styles.top_grid_side_container}>
           <div className={styles.top_grid_label_button_row}>
             <label className={styles.top_grid_label}>LIGHTS:</label>
-            <button className={styles.top_grid_btn}>ON</button>
+            <button 
+              className={data["status"]["cabinet_lights_status"] === "ON" ? `${styles.top_grid_btn} ${styles.active_btn_color}` : `${styles.top_grid_btn} ${styles.inactive_btn_color}` }
+              value={data["status"]["cabinet_lights_status"] === "ON" ? "OFF" : "ON"}
+              onClick={activateCabinetLights}
+            >{data["status"]["cabinet_lights_status"]}</button>
           </div>
           <div className={styles.top_grid_label_button_row}>
             <label className={styles.top_grid_label}>UNITS:</label>
