@@ -4,8 +4,7 @@ import { RASPBERRY_PI_IDs, RS485_DEVICE_IDs } from "../testData/test-data.js";
 export const setSetpoint = async(req, res) => {
     const raspberryPiId = req.params.raspberryDeviceId;
     const rs485DeviceId = req.params.rs485DeviceId;
-    
-    const { newSetpoint } = req.body.setpoint;
+    const newSetpoint = req.body.setpoint;
 
     if (!raspberryPiId) {
         return res.status(400).json({ message: "Raspberry PI Device Id required" });
@@ -20,7 +19,7 @@ export const setSetpoint = async(req, res) => {
     }
 
     // check if raspberry pi id is valid
-    const raspberryPiUrl = RASPBERRY_PI_IDs[raspberryPiId];
+    const raspberryPiUrl = RASPBERRY_PI_IDs[raspberryPiId]["url"];
     if (!raspberryPiUrl) {
         return res.status(404).json({ message: "Raspberry Pi Device not found." });
     }
@@ -38,10 +37,8 @@ export const setSetpoint = async(req, res) => {
     const unit = req.query.unit || defaultUnit; // Get unit from query parameter or use default
 
     try {
-        const response = await axios.post(`${raspberryPiUrl}/temperature-controller/api/v1/${rs485DeviceId}/setpoint`, {
-            data: {
-                setpoint: newSetpoint
-            },
+        const data = { setpoint: newSetpoint }
+        const response = await axios.post(`${raspberryPiUrl}/temperature-controller/api/v1/${rs485DeviceId}/setpoint`, data, {
             params: {
                 unit: unit, // include the unit in the query params
             },
@@ -97,8 +94,7 @@ export const readSetpoint = async(req, res) => {
 export const setMinSetpoint = async(req, res) => {
     const raspberryPiId = req.params.raspberryDeviceId;
     const rs485DeviceId = req.params.rs485DeviceId;
-    
-    const { newMinSetpoint } = req.body.minSetpoint;
+    const newMinSetpoint = req.body.min_setpoint;
 
     if (!raspberryPiId) {
         return res.status(400).json({ message: "Raspberry PI Device Id required" });
@@ -113,7 +109,7 @@ export const setMinSetpoint = async(req, res) => {
     }
 
     // check if raspberry pi id is valid
-    const raspberryPiUrl = RASPBERRY_PI_IDs[raspberryPiId];
+    const raspberryPiUrl = RASPBERRY_PI_IDs[raspberryPiId]["url"];
     if (!raspberryPiUrl) {
         return res.status(404).json({ message: "Raspberry Pi Device not found." });
     }
@@ -131,10 +127,8 @@ export const setMinSetpoint = async(req, res) => {
     const unit = req.query.unit || defaultUnit; // Get unit from query parameter or use default
 
     try {
-        const response = await axios.post(`${raspberryPiUrl}/temperature-controller/api/v1/${rs485DeviceId}/setpoint/min`, {
-            data: {
-                min_setpoint: newMinSetpoint
-            },
+        const data = { min_setpoint: newMinSetpoint };
+        const response = await axios.post(`${raspberryPiUrl}/temperature-controller/api/v1/${rs485DeviceId}/setpoint/min`, data, {
             params: {
                 unit: unit, // include the unit in the query params
             },
@@ -191,7 +185,7 @@ export const setMaxSetpoint = async(req, res) => {
     const raspberryPiId = req.params.raspberryDeviceId;
     const rs485DeviceId = req.params.rs485DeviceId;
     
-    const { newMaxSetpoint } = req.body.maxSetpoint;
+    const newMaxSetpoint = req.body.max_setpoint;
 
     if (!raspberryPiId) {
         return res.status(400).json({ message: "Raspberry PI Device Id required" });
@@ -206,7 +200,7 @@ export const setMaxSetpoint = async(req, res) => {
     }
 
     // check if raspberry pi id is valid
-    const raspberryPiUrl = RASPBERRY_PI_IDs[raspberryPiId];
+    const raspberryPiUrl = RASPBERRY_PI_IDs[raspberryPiId]["url"];
     if (!raspberryPiUrl) {
         return res.status(404).json({ message: "Raspberry Pi Device not found." });
     }
@@ -224,10 +218,8 @@ export const setMaxSetpoint = async(req, res) => {
     const unit = req.query.unit || defaultUnit; // Get unit from query parameter or use default
 
     try {
-        const response = await axios.post(`${raspberryPiUrl}/temperature-controller/api/v1/${rs485DeviceId}/setpoint/max`, {
-            data: {
-                max_setpoint: newMaxSetpoint
-            },
+        const data = { max_setpoint: newMaxSetpoint };
+        const response = await axios.post(`${raspberryPiUrl}/temperature-controller/api/v1/${rs485DeviceId}/setpoint/max`, data, {
             params: {
                 unit: unit, // include the unit in the query params
             },

@@ -5,7 +5,7 @@ export const setHy0Differential = async(req, res) => {
     const raspberryPiId = req.params.raspberryDeviceId;
     const rs485DeviceId = req.params.rs485DeviceId;
     
-    const { newHy0 } = req.body.differential;
+    const newHy0 = req.body.differential;
 
     if (!raspberryPiId) {
         return res.status(400).json({ message: "Raspberry PI Device Id required" });
@@ -20,7 +20,7 @@ export const setHy0Differential = async(req, res) => {
     }
 
     // check if raspberry pi id is valid
-    const raspberryPiUrl = RASPBERRY_PI_IDs[raspberryPiId];
+    const raspberryPiUrl = RASPBERRY_PI_IDs[raspberryPiId]["url"];
     if (!raspberryPiUrl) {
         return res.status(404).json({ message: "Raspberry Pi Device not found." });
     }
@@ -35,14 +35,8 @@ export const setHy0Differential = async(req, res) => {
     }
 
     try {
-        const response = await axios.post(`${raspberryPiUrl}/temperature-controller/api/v1/${rs485DeviceId}/compressor/hy0`, {
-            data: {
-                differential: newHy0
-            },
-            params: {
-                unit: unit, // include the unit in the query params
-            },
-        });
+        const data = { differential: newHy0 };
+        const response = await axios.post(`${raspberryPiUrl}/temperature-controller/api/v1/${rs485DeviceId}/compressor/hy0`, data);
         res.json(response.data);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -88,7 +82,7 @@ export const setHy1Differential = async(req, res) => {
     const raspberryPiId = req.params.raspberryDeviceId;
     const rs485DeviceId = req.params.rs485DeviceId;
     
-    const { newHy1 } = req.body.differential;
+    const newHy1  = req.body.differential;
 
     if (!raspberryPiId) {
         return res.status(400).json({ message: "Raspberry PI Device Id required" });
@@ -103,7 +97,7 @@ export const setHy1Differential = async(req, res) => {
     }
 
     // check if raspberry pi id is valid
-    const raspberryPiUrl = RASPBERRY_PI_IDs[raspberryPiId];
+    const raspberryPiUrl = RASPBERRY_PI_IDs[raspberryPiId]["url"];
     if (!raspberryPiUrl) {
         return res.status(404).json({ message: "Raspberry Pi Device not found." });
     }
@@ -118,14 +112,8 @@ export const setHy1Differential = async(req, res) => {
     }
 
     try {
-        const response = await axios.post(`${raspberryPiUrl}/temperature-controller/api/v1/${rs485DeviceId}/compressor/hy1`, {
-            data: {
-                differential: newHy1
-            },
-            params: {
-                unit: unit, // include the unit in the query params
-            },
-        });
+        const data = { differential: newHy1 };
+        const response = await axios.post(`${raspberryPiUrl}/temperature-controller/api/v1/${rs485DeviceId}/compressor/hy1`, data);
         res.json(response.data);
     } catch (error) {
         res.status(500).json({ message: error.message });

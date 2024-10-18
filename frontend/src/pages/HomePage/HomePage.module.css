@@ -157,6 +157,10 @@
   margin: 10px;
 }
 
+button {
+  font-weight: bold;
+}
+
 label {
   display: block;
   font-weight: bold;
@@ -210,6 +214,17 @@ label {
   flex-shrink: 0;
   margin-right: 10px;
   margin-left: 5px;
+}
+
+.lower_container {
+  display: flex;
+  justify-content: space-between;
+  border: 1.5px solid var(--border-color);
+  margin-top: 30px;
+  margin-left: auto;
+  margin-right: auto;
+  width: 95%;
+  flex-wrap: wrap;
 }
 
 .loader {

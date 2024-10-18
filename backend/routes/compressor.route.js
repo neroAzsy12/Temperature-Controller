@@ -9,7 +9,7 @@ import {
 const router = express.Router();
 router.get("/hy0/:raspberryDeviceId/:rs485DeviceId", readHy0Differential);
 router.post("/hy0/:raspberryDeviceId/:rs485DeviceId", setHy0Differential);
-router.get("/hy0/:raspberryDeviceId/:rs485DeviceId", readHy1Differential);
-router.post("/hy0/:raspberryDeviceId/:rs485DeviceId", setHy1Differential);
+router.get("/hy1/:raspberryDeviceId/:rs485DeviceId", readHy1Differential);
+router.post("/hy1/:raspberryDeviceId/:rs485DeviceId", setHy1Differential);
 
 export default router;

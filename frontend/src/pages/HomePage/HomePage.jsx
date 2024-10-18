@@ -4,144 +4,221 @@ import axios from 'axios';
 
 const HomePage = () => {
   const [data, setData] = useState(null);
-
+  const [unit, setUnit] = useState('F');
   const [loading, setLoading] = useState(true);
 
-  const [standbyMode, setStandbyMode] = useState('OFF');
-
-  const [t1, setT1] = useState(0);
-  const [t2, setT2] = useState(0);
-  
-  const [doorHeaterStatus, setDoorHeaterStatus] = useState("OFF")
-  const [evaporatorFanStatus, setEvaporatorFanStatus] = useState("OFF")
-  const [compressorStatus, setCompressorStatus] = useState("OFF")
-  const [defrostStatus, setDefrostStatus] = useState("OFF")
-
-  const [SPL, setSPL] = useState(0);
-  const [SP, setSP] = useState(0);
-  const [SPH, setSPH] = useState(0);
-  const [HY0, setHY0] = useState(0);
-  const [HY1, setHY1] = useState(0);
-
-  const [temp_unit, setUnit] = useState('F');
-
-  // const fetchCabinetStatus = async() => {
-  //   try {
-  //     const baseURL = 'http://localhost:3000/api/v1/cabinet/rp1/device01/cabinet/status'
-  //     const params = new URLSearchParams({ unit: temp_unit });
-  //     const urlWithParams = `${baseURL}?${params.toString()}`;
-      
-  //     const response = await fetch(urlWithParams)
-  //     const data = await response.json();
-
-  //     setT1(data.temperatures["T1"]);
-  //     setT2(data.temperatures["T2"]);
-  //     setEvaporatorFanStatus(data.evap_fan_status)
-  //     setCompressorStatus(data.compressor_status)
-  //     setDefrostStatus(data.defrost_status)
-  //   } catch (error) {
-  //     console.error(`Error fetching temperatures:`, error);
-  //   }
-  // };
-
-  const fetchCabinetStatus = async() => {
+  const convertTemperature = async (e) => {
     try {
-      const response = await axios.get('http://localhost:3000/api/v1/cabinet/rp1/device01/cabinet/status', {
+      const unit = e.target.value;
+      const response = await axios.get('http://localhost:3000/api/v1/cabinet/rp1/device01/cabinet/temperatures', {
         params: {
-          unit: temp_unit
+          unit: unit
         }
       });
-      setData(response.data);
+
+      setData((prevData) => ({
+        ...prevData,
+        temperatures: {
+          T1: response.data["temperatures"]["T1"],
+          T2: response.data["temperatures"]["T2"]
+        },
+        setpoints: {
+          SPL: response.data["setpoints"]["SPL"],
+          SP: response.data["setpoints"]["SP"],
+          SPH: response.data["setpoints"]["SPH"]
+        },
+        unit: response.data["unit"]
+      }));
+
+      setUnit(unit);
     } catch (err) {
       console.error("Failed to update temperatures", err);
     }
   };
 
-  // const fetchConfigurableSettings = async() => {
-  //   try {
-  //     const response = await axios.get("http://localhost:3000/api/v1/cabinet/rp1/device01/cabinet/configurable-settings", {
-  //       params: {
-  //         unit: temp_unit
-  //       }
-  //     });
-  //     setData1(response.data);
-  //   } catch (error) {
-  //     console.error("Failed to get settings:", error);
-  //   }
-  // };
-
-  const convertTemperature = () => {
-    const unit = event.target.value;
-    setUnit(unit);
-
-    const baseURL = 'http://localhost:3000/api/v1/probes/rp1/device01/temperature/all'
-    const params = new URLSearchParams({ unit: temp_unit });
-    const urlWithParams = `${baseURL}?${params.toString()}`;
-  };
-
-  const activateStandby = () => {
+  const fetchData = async () => {
     try {
-      const mode = event.target.value;
-      let url;
-      if (mode === "ON") {
-        url = 'http://localhost:3000/api/v1/standby/rp1/device01/standby/on';
-      } else {
-        url = 'http://localhost:3000/api/v1/standby/rp1/device01/standby/off';
-      }
-      
-      const requestOptions = {
-        method: 'post',
-        headers: { 
-          'Content-Type': 'application/json; charset=UTF-8' 
+      const response = await axios.get('http://localhost:3000/api/v1/cabinet/rp1/device01/cabinet/status', {
+        params: {
+          unit: unit
         }
-      };
+      });
+      setData(response.data);
+      setUnit(response.data["unit"]);
+    } catch (err) {
+      console.error("Failed to get temperatures and status", err);
+    }
+  }
 
-      fetch(url, requestOptions)
-        .then(setStandbyMode(mode))
-        .catch(error => console.error(error));
+  useEffect(() => {
+    fetchData();
+
+    const interval = setInterval(fetchData, 6000);
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    if (data !== null) {
+      setLoading(false);
+    }
+  }, [data]);
+ 
+  // Keep of values that can be changed
+  const [newSPL, setSPLNew] = useState(0);
+  const [newSPH, setSPHNew] = useState(0);
+  const [newSP, setSPNew] = useState(0);
+  const [newHY0, setHY0] = useState(0);
+  const [newHY1, setHY1] = useState(0);
+
+  const activateStandby = async(e) => {
+    try {
+      const mode = e.target.value;
+      let response;
+      if (mode === "ON") {
+        response = await axios.post('http://localhost:3000/api/v1/cabinet/rp1/device01/cabinet/standby/on')
+      } else {
+        response = await axios.post('http://localhost:3000/api/v1/cabinet/rp1/device01/cabinet/standby/off')
+      }
+      console.log("testing")
+      setData((prevData) => ({
+        ...prevData,
+        standby_mode: response.data["standby_mode"],
+        status: {
+          evap_fan_status: response.data["status"]["evap_fan_status"],
+          compressor_status: response.data["status"]["compressor_status"],
+          door_heater_status: response.data["status"]["door_heater_status"],
+          defrost_status: response.data["status"]["defrost_status"]
+        }
+      }));
+
     } catch (error) {
       console.error(`Error in standby mode:`, error)
     } 
   };
 
-  const checkLoading = () => {
-    if (data) {
-      setLoading(false);
+  // SPL, SP, SPH logic
+  const handleNewSPLChange = (e) => {
+    setSPLNew(e.target.value);
+  };
+
+  const updateSPL = async() => {
+    try {
+      const bodyData = { min_setpoint: newSPL };
+      const params = { unit: unit};
+
+      const response = await axios.post('http://localhost:3000/api/v1/setpoints/rp1/device01/setpoint/min', bodyData, {
+        params: params
+      });
+      setData((prevData) => ({
+        ...prevData,
+        setpoints: {
+          ...prevData.setpoints,
+          SPL: response.data["min_setpoint"],
+        },
+        unit: response.data["unit"]
+      }));
+
+      setUnit(unit);
+    } catch (err) {
+      console.error("Failed to update SPL", err);
     }
   };
 
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     setLoading(true);
-  //     await Promise.all([fetchCabinetStatus(), fetchConfigurableSettings()]);
-  //     checkLoading();
-  //   };
+  const handleNewSPChange = (e) => {
+    setSPNew(e.target.value);
+  };
+  const updateSP = async() => {
+    try {
+      const bodyData = { setpoint: newSP };
+      const params = { unit: unit};
 
-  //   fetchData();
-  //   const interval = setInterval(() => {
-  //     fetchCabinetStatus();
-  //   }, 60000);
+      const response = await axios.post('http://localhost:3000/api/v1/setpoints/rp1/device01/setpoint', bodyData, {
+        params: params
+      });
+      setData((prevData) => ({
+        ...prevData,
+        setpoints: {
+          ...prevData.setpoints,
+          SP: response.data["setpoint"],
+        },
+        unit: response.data["unit"]
+      }));
 
-  //   return () => clearInterval(interval);
-  // }, []);
+      setUnit(unit);
+    } catch (err) {
+      console.error("Failed to update SP", err);
+    }
+  };
 
-  useEffect(() => {
-    // set up interval to fetch temperatures every 5 minutes
-    fetchCabinetStatus();
-    const interval = setInterval(() => {
-      fetchCabinetStatus();
-    }, 60000);
+  const handleNewSPHChange = (e) => {
+    setSPHNew(e.target.value);
+  };
+  const updateSPH = async() => {
+    try {
+      const bodyData = { max_setpoint: newSPH };
+      const params = { unit: unit};
 
-    return () => clearInterval(interval);
-  }, []);
+      const response = await axios.post('http://localhost:3000/api/v1/setpoints/rp1/device01/setpoint/max', bodyData, {
+        params: params
+      });
+      setData((prevData) => ({
+        ...prevData,
+        setpoints: {
+          ...prevData.setpoints,
+          SPH: response.data["max_setpoint"],
+        },
+        unit: response.data["unit"]
+      }));
 
-  // useEffect(() => {
-  //   fetchConfigurableSettings();
-  // }, []);
+      setUnit(unit);
+    } catch (err) {
+      console.error("Failed to update SPH", err);
+    }
+  };
 
-  useEffect(() => {
-    checkLoading();
-  }, [data]);
+  // HY0 Logic
+  const handleNewHY0Change = (e) => {
+    setHY0(e.target.value);
+  };
+
+  const updateHY0 = async() => {
+    try {
+      const bodyData = { differential: newHY0 };
+
+      const response = await axios.post('http://localhost:3000/api/v1/compressors/hy0/rp1/device01', bodyData);
+      setData((prevData) => ({
+        ...prevData,
+        differentials: {
+          ...prevData.differentials,
+          HY0: response.data["HY0"],
+        }
+      }));
+    } catch (err) {
+      console.error("Failed to update HY0", err);
+    }
+  };
+  
+  // HY1 Logic
+  const handleNewHY1Change = (e) => {
+    setHY1(e.target.value);
+  };
+
+  const updateHY1 = async() => {
+    try {
+      const bodyData = { differential: newHY1 };
+
+      const response = await axios.post('http://localhost:3000/api/v1/compressors/hy1/rp1/device01', bodyData);
+      setData((prevData) => ({
+        ...prevData,
+        differentials: {
+          ...prevData.differentials,
+          HY1: response.data["HY1"],
+        }
+      }));
+    } catch (err) {
+      console.error("Failed to update HY1", err);
+    }
+  };
 
   if (loading) {
     return (
@@ -181,21 +258,21 @@ const HomePage = () => {
           <div className={styles.top_grid_label_row}>
             <div className={styles.top_grid_label_button_row}>
               <label className={styles.top_grid_label}>DOOR HEATER:</label>
-              <label className={ doorHeaterStatus === "ON" ? `${styles.top_grid_label_2} ${styles.active_btn_color}` : `${styles.top_grid_label_2} ${styles.inactive_btn_color}` } >{doorHeaterStatus}</label>
+              <label className={ data["status"]["door_heater_status"] === "ON" ? `${styles.top_grid_label_2} ${styles.active_btn_color}` : `${styles.top_grid_label_2} ${styles.inactive_btn_color}` } >{data["status"]["door_heater_status"]}</label>
             </div>
             <div className={ `${styles.top_grid_label_button_row} ${styles.customMarginLeft}`}>
               <label className={styles.top_grid_label}>DEFROST:</label>
-              <label className={ data["defrost_status"] === "ON" ? `${styles.top_grid_label_2} ${styles.active_btn_color}` : `${styles.top_grid_label_2} ${styles.inactive_btn_color}` } >{data["defrost_status"]}</label>
+              <label className={ data["status"]["defrost_status"] === "ON" ? `${styles.top_grid_label_2} ${styles.active_btn_color}` : `${styles.top_grid_label_2} ${styles.inactive_btn_color}` } >{data["status"]["defrost_status"]}</label>
             </div>
           </div>
           <div className={styles.top_grid_label_row}>
               <div className={styles.top_grid_label_button_row}>
                 <label className={styles.top_grid_label}>EVAP FAN:</label>
-                <label className={ data["evap_fan_status"] === "ON" ? `${styles.top_grid_label_2} ${styles.active_btn_color}` : `${styles.top_grid_label_2} ${styles.inactive_btn_color}` } >{data["evap_fan_status"]}</label>
+                <label className={ data["status"]["evap_fan_status"] === "ON" ? `${styles.top_grid_label_2} ${styles.active_btn_color}` : `${styles.top_grid_label_2} ${styles.inactive_btn_color}` } >{data["status"]["evap_fan_status"]}</label>
                 </div>
               <div className={ `${styles.top_grid_label_button_row} ${styles.customMarginLeft}`}>
                 <label className={styles.top_grid_label}>COMPRESSOR:</label>
-                <label className={ data["compressor_status"] === "ON" ? `${styles.top_grid_label_2} ${styles.active_btn_color}` : `${styles.top_grid_label_2} ${styles.inactive_btn_color}` } >{data["compressor_status"]}</label>
+                <label className={ data["status"]["compressor_status"] === "ON" ? `${styles.top_grid_label_2} ${styles.active_btn_color}` : `${styles.top_grid_label_2} ${styles.inactive_btn_color}` } >{data["status"]["compressor_status"]}</label>
               </div>
           </div>
         </div>
@@ -209,9 +286,9 @@ const HomePage = () => {
             <label className={styles.top_grid_label}>UNITS:</label>
             <button 
               className={`${styles.top_grid_btn} ${styles.active_btn_color}`}
-              value={temp_unit === 'C' ? 'F' : 'C'}
+              value={unit === 'C' ? 'F' : 'C'}
               onClick={convertTemperature}  
-            >º{temp_unit}</button>
+            >º{unit}</button>
           </div>
         </div>
       </div>
@@ -222,42 +299,60 @@ const HomePage = () => {
           <div className={styles.changeable_label_container}>
             <label>SET POINT LOW</label>
           </div>
-          <h1 className={styles.changeable_settings_h1}>{data["setpoints"]["SPL"]}º{temp_unit}</h1>
+          <h1 className={styles.changeable_settings_h1}>{data["setpoints"]["SPL"]}º{unit}</h1>
           <div className={styles.input_button_row}>
             <input
               className={styles.changeable_settings_input}
-              type='number'
+              type='number' 
+              onChange={handleNewSPLChange}
               placeholder='Set new SPL'
+              min={unit === 'C' ? '-50' : '-58'}
+              max={data["setpoints"]['SPH']}
+              step={unit === 'C' ? '0.1' : '1'}
             />
-            <button className={styles.changeable_settings_btn}>Set</button>
+            <button className={styles.changeable_settings_btn}
+              onClick={updateSPL}
+            >Set</button>
           </div>
         </div>
         <div className={styles.changeable_settings_container}>
           <div className={styles.changeable_label_container}>
             <label>SET POINT</label>
           </div>
-          <h1 className={styles.changeable_settings_h1}>{data["setpoints"]["SP"]}º{temp_unit}</h1>
+          <h1 className={styles.changeable_settings_h1}>{data["setpoints"]["SP"]}º{unit}</h1>
           <div className={styles.input_button_row}>
             <input
               className={styles.changeable_settings_input}
               type='number'
+              onChange={handleNewSPChange}
               placeholder='Set new SP'
+              min={data["setpoints"]["SPL"]}
+              max={data["setpoints"]["SPH"]}
+              step={unit === 'C' ? '0.1' : '1'}
             />
-            <button className={styles.changeable_settings_btn}>Set</button>
+            <button className={styles.changeable_settings_btn}
+              onClick={updateSP}
+            >Set</button>
           </div>
         </div>
         <div className={styles.changeable_settings_container}>
           <div className={styles.changeable_label_container}>
             <label>SET POINT HIGH</label>
           </div>
-          <h1 className={styles.changeable_settings_h1}>{data["setpoints"]["SPH"]}º{temp_unit}</h1>
+          <h1 className={styles.changeable_settings_h1}>{data["setpoints"]["SPH"]}º{unit}</h1>
           <div className={styles.input_button_row}>
             <input
               className={styles.changeable_settings_input}
               type='number'
+              onChange={handleNewSPHChange}
               placeholder='Set new SPH'
+              min={data["setpoints"]["SPL"]}
+              max={unit === 'C' ? '110' : '180'}
+              step={unit === 'C' ? '0.1' : '1'}
             />
-            <button className={styles.changeable_settings_btn}>Set</button>
+            <button className={styles.changeable_settings_btn}
+              onClick={updateSPH}
+            >Set</button>
           </div>
         </div>
         <div className={styles.changeable_settings_container}>
@@ -268,10 +363,15 @@ const HomePage = () => {
           <div className={styles.input_button_row}>
             <input
               className={styles.changeable_settings_input}
-              type='number'
+              type='number' 
+              onChange={handleNewHY0Change}
               placeholder='Set new HY0'
+              min='1'
+              max='10'
             />
-            <button className={styles.changeable_settings_btn}>Set</button>
+            <button className={styles.changeable_settings_btn}
+              onClick={updateHY0}
+            >Set</button>
           </div>
         </div>
         <div className={styles.changeable_settings_container}>
@@ -283,9 +383,14 @@ const HomePage = () => {
             <input
               className={styles.changeable_settings_input}
               type='number'
+              onChange={handleNewHY1Change}
               placeholder='Set new HY1'
+              min='0'
+              max='10'
             />
-            <button className={styles.changeable_settings_btn}>Set</button>
+            <button className={styles.changeable_settings_btn}
+              onClick={updateHY1}
+            >Set</button>
           </div>
         </div>
       </div>
@@ -295,13 +400,13 @@ const HomePage = () => {
           <div className={styles.changeable_label_container}>
             <label>T1</label>
           </div>
-          <h1 className={styles.changeable_settings_h1}>{data["temperatures"]["T1"]}º{temp_unit}</h1>
+          <h1 className={styles.changeable_settings_h1}>{data["temperatures"]["T1"]}º{unit}</h1>
         </div>
         <div className={styles.changeable_settings_container}>
           <div className={styles.changeable_label_container}>
             <label>T2</label>
           </div>
-          <h1 className={styles.changeable_settings_h1}>{data["temperatures"]["T2"]}º{temp_unit}</h1>
+          <h1 className={styles.changeable_settings_h1}>{data["temperatures"]["T2"]}º{unit}</h1>
         </div>
       </div>
     </div>
