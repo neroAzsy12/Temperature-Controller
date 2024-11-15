@@ -1,15 +1,17 @@
 export const RASPBERRY_PI_IDs = {
-    'rp1': {
+    'raspberry_pi_1': {
+        "rpi_id": "raspberry_pi_1",
         "url": 'http://raspberrypi-temp-controller-01.local:5001',    // Replace with actual ID
+        "koisk_id": "K175",
         "devices": [
-            "device01"
+            "device_01"
         ]
     }
 }
 
 export const RS485_DEVICE_IDs = {
-    'device01': {
-        "raspberryPi": "rp1",
+    'device_01': {
+        "cabinet_id": "cabinet_01",
         "port": "/dev/ttyUSB0",
         "slaveAddress": 1,
         "mode": "ASCII",

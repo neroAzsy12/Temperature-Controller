@@ -1,31 +1,34 @@
 import axios from "axios";
-import { RASPBERRY_PI_IDs, RS485_DEVICE_IDs } from "../testData/test-data.js";
+import RaspberryPi from "../models/raspberryPi.model.js";
 
 export const getCabinetStatus = async(req, res) => {
-    const raspberryPiId = req.params.raspberryDeviceId;
+    const kioskId = req.params.kioskId;
     const rs485DeviceId = req.params.rs485DeviceId;
 
-    if (!raspberryPiId) {
-        return res.status(400).json({ message: "Raspberry PI Device Id required" });
+    if (!kioskId) {
+        return res.status(400).json({ message: "Kiosk Id required" });
     }
 
     if (!rs485DeviceId) {
         return res.status(400).json({ message: "RS485 Device Id required" });
     }
 
-    // check if raspberry pi id is valid
-    const raspberryPiUrl = RASPBERRY_PI_IDs[raspberryPiId]["url"];
-    if (!raspberryPiUrl) {
-        return res.status(404).json({ message: "Raspberry Pi Device not found." });
+    const kioskExists = await RaspberryPi.findOne({kiosk_id: kioskId});
+    if (!kioskExists) {
+        return res.status(404).json({ message: "Kiosk not found"});
     }
 
+    // check if raspberry pi id is valid
+    const raspberryPiUrl = kioskExists.url;
+    if (!raspberryPiUrl) {
+        return res.status(404).json({ message: "Raspberry Pi URL not found." });
+    }
+
+    const isDevicePresent = kioskExists.devices.includes(rs485DeviceId);
+
     // check if rs485 device id is valid, and if connected to the corresponding raspberry pi
-    const rs485Device = RS485_DEVICE_IDs[rs485DeviceId];
-    if (!rs485Device) {
-        const rs485DeviceRPI = RS485_DEVICE_IDs[rs485DeviceId][raspberryPiId]
-        if (!rs485DeviceRPI || (rs485DeviceRPI && rs485DeviceRPI !== raspberryPiId)) {
-            return res.status(404).json({ message: "RS485 Device not found." });
-        }
+    if (!isDevicePresent) {
+        return res.status(404).json({ message: "RS485 Device not found." });
     }
 
     const defaultUnit = 'C';                    // Default to Celsius
@@ -44,30 +47,33 @@ export const getCabinetStatus = async(req, res) => {
 }
 
 export const getTemperatures = async(req, res) => {
-    const raspberryPiId = req.params.raspberryDeviceId;
+    const kioskId = req.params.kioskId;
     const rs485DeviceId = req.params.rs485DeviceId;
 
-    if (!raspberryPiId) {
-        return res.status(400).json({ message: "Raspberry PI Device Id required" });
+    if (!kioskId) {
+        return res.status(400).json({ message: "Kiosk Id required" });
     }
 
     if (!rs485DeviceId) {
         return res.status(400).json({ message: "RS485 Device Id required" });
     }
 
-    // check if raspberry pi id is valid
-    const raspberryPiUrl = RASPBERRY_PI_IDs[raspberryPiId]["url"];
-    if (!raspberryPiUrl) {
-        return res.status(404).json({ message: "Raspberry Pi Device not found." });
+    const kioskExists = await RaspberryPi.findOne({kiosk_id: kioskId});
+    if (!kioskExists) {
+        return res.status(404).json({ message: "Kiosk not found"});
     }
 
+    // check if raspberry pi id is valid
+    const raspberryPiUrl = kioskExists.url;
+    if (!raspberryPiUrl) {
+        return res.status(404).json({ message: "Raspberry Pi URL not found." });
+    }
+
+    const isDevicePresent = kioskExists.devices.includes(rs485DeviceId);
+
     // check if rs485 device id is valid, and if connected to the corresponding raspberry pi
-    const rs485Device = RS485_DEVICE_IDs[rs485DeviceId];
-    if (!rs485Device) {
-        const rs485DeviceRPI = RS485_DEVICE_IDs[rs485DeviceId][raspberryPiId]
-        if (!rs485DeviceRPI || (rs485DeviceRPI && rs485DeviceRPI !== raspberryPiId)) {
-            return res.status(404).json({ message: "RS485 Device not found." });
-        }
+    if (!isDevicePresent) {
+        return res.status(404).json({ message: "RS485 Device not found." });
     }
 
     const defaultUnit = 'C';                    // Default to Celsius
@@ -86,30 +92,33 @@ export const getTemperatures = async(req, res) => {
 }
 
 export const turnStandbyOn = async(req, res) => {
-    const raspberryPiId = req.params.raspberryDeviceId;
+    const kioskId = req.params.kioskId;
     const rs485DeviceId = req.params.rs485DeviceId;
 
-    if (!raspberryPiId) {
-        return res.status(400).json({ message: "Raspberry PI Device Id required" });
+    if (!kioskId) {
+        return res.status(400).json({ message: "Kiosk Id required" });
     }
 
     if (!rs485DeviceId) {
         return res.status(400).json({ message: "RS485 Device Id required" });
     }
 
-    // check if raspberry pi id is valid
-    const raspberryPiUrl = RASPBERRY_PI_IDs[raspberryPiId]["url"];
-    if (!raspberryPiUrl) {
-        return res.status(404).json({ message: "Raspberry Pi Device not found." });
+    const kioskExists = await RaspberryPi.findOne({kiosk_id: kioskId});
+    if (!kioskExists) {
+        return res.status(404).json({ message: "Kiosk not found"});
     }
 
+    // check if raspberry pi id is valid
+    const raspberryPiUrl = kioskExists.url;
+    if (!raspberryPiUrl) {
+        return res.status(404).json({ message: "Raspberry Pi URL not found." });
+    }
+
+    const isDevicePresent = kioskExists.devices.includes(rs485DeviceId);
+
     // check if rs485 device id is valid, and if connected to the corresponding raspberry pi
-    const rs485Device = RS485_DEVICE_IDs[rs485DeviceId];
-    if (!rs485Device) {
-        const rs485DeviceRPI = RS485_DEVICE_IDs[rs485DeviceId][raspberryPiId]
-        if (!rs485DeviceRPI || (rs485DeviceRPI && rs485DeviceRPI !== raspberryPiId)) {
-            return res.status(404).json({ message: "RS485 Device not found." });
-        }
+    if (!isDevicePresent) {
+        return res.status(404).json({ message: "RS485 Device not found." });
     }
 
     try {
@@ -121,30 +130,33 @@ export const turnStandbyOn = async(req, res) => {
 }
 
 export const turnStandbyOff = async(req, res) => {
-    const raspberryPiId = req.params.raspberryDeviceId;
+    const kioskId = req.params.kioskId;
     const rs485DeviceId = req.params.rs485DeviceId;
 
-    if (!raspberryPiId) {
-        return res.status(400).json({ message: "Raspberry PI Device Id required" });
+    if (!kioskId) {
+        return res.status(400).json({ message: "Kiosk Id required" });
     }
 
     if (!rs485DeviceId) {
         return res.status(400).json({ message: "RS485 Device Id required" });
     }
 
-    // check if raspberry pi id is valid
-    const raspberryPiUrl = RASPBERRY_PI_IDs[raspberryPiId]["url"];
-    if (!raspberryPiUrl) {
-        return res.status(404).json({ message: "Raspberry Pi Device not found." });
+    const kioskExists = await RaspberryPi.findOne({kiosk_id: kioskId});
+    if (!kioskExists) {
+        return res.status(404).json({ message: "Kiosk not found"});
     }
 
+    // check if raspberry pi id is valid
+    const raspberryPiUrl = kioskExists.url;
+    if (!raspberryPiUrl) {
+        return res.status(404).json({ message: "Raspberry Pi URL not found." });
+    }
+
+    const isDevicePresent = kioskExists.devices.includes(rs485DeviceId);
+
     // check if rs485 device id is valid, and if connected to the corresponding raspberry pi
-    const rs485Device = RS485_DEVICE_IDs[rs485DeviceId];
-    if (!rs485Device) {
-        const rs485DeviceRPI = RS485_DEVICE_IDs[rs485DeviceId][raspberryPiId]
-        if (!rs485DeviceRPI || (rs485DeviceRPI && rs485DeviceRPI !== raspberryPiId)) {
-            return res.status(404).json({ message: "RS485 Device not found." });
-        }
+    if (!isDevicePresent) {
+        return res.status(404).json({ message: "RS485 Device not found." });
     }
 
     try {
@@ -156,30 +168,33 @@ export const turnStandbyOff = async(req, res) => {
 }
 
 export const turnCabinetLightsOn = async(req, res) => {
-    const raspberryPiId = req.params.raspberryDeviceId;
+    const kioskId = req.params.kioskId;
     const rs485DeviceId = req.params.rs485DeviceId;
 
-    if (!raspberryPiId) {
-        return res.status(400).json({ message: "Raspberry PI Device Id required" });
+    if (!kioskId) {
+        return res.status(400).json({ message: "Kiosk Id required" });
     }
 
     if (!rs485DeviceId) {
         return res.status(400).json({ message: "RS485 Device Id required" });
     }
 
-    // check if raspberry pi id is valid
-    const raspberryPiUrl = RASPBERRY_PI_IDs[raspberryPiId]["url"];
-    if (!raspberryPiUrl) {
-        return res.status(404).json({ message: "Raspberry Pi Device not found." });
+    const kioskExists = await RaspberryPi.findOne({kiosk_id: kioskId});
+    if (!kioskExists) {
+        return res.status(404).json({ message: "Kiosk not found"});
     }
 
+    // check if raspberry pi id is valid
+    const raspberryPiUrl = kioskExists.url;
+    if (!raspberryPiUrl) {
+        return res.status(404).json({ message: "Raspberry Pi URL not found." });
+    }
+
+    const isDevicePresent = kioskExists.devices.includes(rs485DeviceId);
+
     // check if rs485 device id is valid, and if connected to the corresponding raspberry pi
-    const rs485Device = RS485_DEVICE_IDs[rs485DeviceId];
-    if (!rs485Device) {
-        const rs485DeviceRPI = RS485_DEVICE_IDs[rs485DeviceId][raspberryPiId]
-        if (!rs485DeviceRPI || (rs485DeviceRPI && rs485DeviceRPI !== raspberryPiId)) {
-            return res.status(404).json({ message: "RS485 Device not found." });
-        }
+    if (!isDevicePresent) {
+        return res.status(404).json({ message: "RS485 Device not found." });
     }
 
     try {
@@ -191,30 +206,33 @@ export const turnCabinetLightsOn = async(req, res) => {
 }
 
 export const turnCabinetLightsOff = async(req, res) => {
-    const raspberryPiId = req.params.raspberryDeviceId;
+    const kioskId = req.params.kioskId;
     const rs485DeviceId = req.params.rs485DeviceId;
 
-    if (!raspberryPiId) {
-        return res.status(400).json({ message: "Raspberry PI Device Id required" });
+    if (!kioskId) {
+        return res.status(400).json({ message: "Kiosk Id required" });
     }
 
     if (!rs485DeviceId) {
         return res.status(400).json({ message: "RS485 Device Id required" });
     }
 
-    // check if raspberry pi id is valid
-    const raspberryPiUrl = RASPBERRY_PI_IDs[raspberryPiId]["url"];
-    if (!raspberryPiUrl) {
-        return res.status(404).json({ message: "Raspberry Pi Device not found." });
+    const kioskExists = await RaspberryPi.findOne({kiosk_id: kioskId});
+    if (!kioskExists) {
+        return res.status(404).json({ message: "Kiosk not found"});
     }
 
+    // check if raspberry pi id is valid
+    const raspberryPiUrl = kioskExists.url;
+    if (!raspberryPiUrl) {
+        return res.status(404).json({ message: "Raspberry Pi URL not found." });
+    }
+
+    const isDevicePresent = kioskExists.devices.includes(rs485DeviceId);
+
     // check if rs485 device id is valid, and if connected to the corresponding raspberry pi
-    const rs485Device = RS485_DEVICE_IDs[rs485DeviceId];
-    if (!rs485Device) {
-        const rs485DeviceRPI = RS485_DEVICE_IDs[rs485DeviceId][raspberryPiId]
-        if (!rs485DeviceRPI || (rs485DeviceRPI && rs485DeviceRPI !== raspberryPiId)) {
-            return res.status(404).json({ message: "RS485 Device not found." });
-        }
+    if (!isDevicePresent) {
+        return res.status(404).json({ message: "RS485 Device not found." });
     }
 
     try {
