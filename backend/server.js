@@ -4,9 +4,7 @@ import cors from "cors";
 import path from "path";
 
 import cabinetRoutes from "./routes/cabinet.route.js";
-import setpointRoutes from "./routes/setpoint.route.js";
-import standbyRoutes from "./routes/standby.route.js";
-import compressorRoutes from "./routes/compressor.route.js";
+import { connectDB } from "./config/db.js";
 
 dotenv.config()
 
@@ -26,11 +24,9 @@ if (process.env.NODE_ENV !== "production") {
 app.use(express.json({ limit: "5mb" }));    // parse JSON request bodies
 app.use(express.urlencoded({extended: false}))
 
-app.use("/api/v1/cabinet", cabinetRoutes);
-app.use("/api/v1/setpoints", setpointRoutes);
-app.use("/api/v1/standby", standbyRoutes);
-app.use("/api/v1/compressors", compressorRoutes);
+app.use("/api/v1", cabinetRoutes);
 
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
+	connectDB();
 })

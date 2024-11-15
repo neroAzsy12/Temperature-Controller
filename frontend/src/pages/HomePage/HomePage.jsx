@@ -10,7 +10,7 @@ const HomePage = () => {
   const convertTemperature = async (e) => {
     try {
       const unit = e.target.value;
-      const response = await axios.get('http://localhost:3000/api/v1/cabinet/rp1/device01/cabinet/temperatures', {
+      const response = await axios.get('http://localhost:3000/api/v1/K175/device_01/cabinet/temperatures', {
         params: {
           unit: unit
         }
@@ -19,8 +19,8 @@ const HomePage = () => {
       setData((prevData) => ({
         ...prevData,
         temperatures: {
-          T1: response.data["temperatures"]["T1"],
-          T2: response.data["temperatures"]["T2"]
+          T1: response.data["probes"]["T1"],
+          T2: response.data["probes"]["T2"]
         },
         setpoints: {
           SPL: response.data["setpoints"]["SPL"],
@@ -38,7 +38,7 @@ const HomePage = () => {
 
   const fetchData = async () => {
     try {
-      const response = await axios.get('http://localhost:3000/api/v1/cabinet/rp1/device01/cabinet/status', {
+      const response = await axios.get('http://localhost:3000/api/v1/K175/device_01/cabinet/status', {
         params: {
           unit: unit
         }
@@ -75,9 +75,9 @@ const HomePage = () => {
       const mode = e.target.value;
       let response;
       if (mode === "ON") {
-        response = await axios.post('http://localhost:3000/api/v1/cabinet/rp1/device01/cabinet/standby/on')
+        response = await axios.post('http://localhost:3000/api/v1/K175/device_01/cabinet/standby/on')
       } else {
-        response = await axios.post('http://localhost:3000/api/v1/cabinet/rp1/device01/cabinet/standby/off')
+        response = await axios.post('http://localhost:3000/api/v1/K175/device_01/cabinet/standby/off')
       }
       setData((prevData) => ({
         ...prevData,
@@ -101,9 +101,9 @@ const HomePage = () => {
       const lights_enabled = e.target.value;
       let response;
       if (lights_enabled === "ON") {
-        response = await axios.post('http://localhost:3000/api/v1/cabinet/rp1/device01/cabinet/light/on')
+        response = await axios.post('http://localhost:3000/api/v1/K175/device_01/cabinet/lights/on')
       } else {
-        response = await axios.post('http://localhost:3000/api/v1/cabinet/rp1/device01/cabinet/light/off')
+        response = await axios.post('http://localhost:3000/api/v1/K175/device_01/cabinet/lights/off')
       }
       setData((prevData) => ({
         ...prevData,
@@ -118,6 +118,27 @@ const HomePage = () => {
     }
   };
 
+  const activateDefrostCycle = async(e) => {
+    try {
+      const defrost_enabled = e.target.value;
+      let response;
+      if (defrost_enabled === "ON") {
+        response = await axios.post('http://localhost:3000/api/v1/K175/device_01/cabinet/defrost/on')
+      } else {
+        response = await axios.post('http://localhost:3000/api/v1/K175/device_01/cabinet/defrost/off')
+      }
+      setData((prevData) => ({
+        ...prevData,
+        status: {
+          ...prevData.status,
+          defrost_status: response.data["status"]
+        }
+      }));
+    } catch (error) {
+      console.error(`Error in defrost:`, error);
+    }
+  }
+
   // SPL, SP, SPH logic
   const handleNewSPLChange = (e) => {
     setSPLNew(e.target.value);
@@ -128,7 +149,7 @@ const HomePage = () => {
       const bodyData = { min_setpoint: newSPL };
       const params = { unit: unit};
 
-      const response = await axios.post('http://localhost:3000/api/v1/setpoints/rp1/device01/setpoint/min', bodyData, {
+      const response = await axios.post('http://localhost:3000/api/v1/K175/device_01/cabinet/setpoint/min', bodyData, {
         params: params
       });
       setData((prevData) => ({
@@ -154,7 +175,7 @@ const HomePage = () => {
       const bodyData = { setpoint: newSP };
       const params = { unit: unit};
 
-      const response = await axios.post('http://localhost:3000/api/v1/setpoints/rp1/device01/setpoint', bodyData, {
+      const response = await axios.post('http://localhost:3000/api/v1/K175/device_01/cabinet/setpoint', bodyData, {
         params: params
       });
       setData((prevData) => ({
@@ -180,7 +201,7 @@ const HomePage = () => {
       const bodyData = { max_setpoint: newSPH };
       const params = { unit: unit};
 
-      const response = await axios.post('http://localhost:3000/api/v1/setpoints/rp1/device01/setpoint/max', bodyData, {
+      const response = await axios.post('http://localhost:3000/api/v1/K175/device_01/cabinet/setpoint/max', bodyData, {
         params: params
       });
       setData((prevData) => ({
@@ -207,7 +228,7 @@ const HomePage = () => {
     try {
       const bodyData = { differential: newHY0 };
 
-      const response = await axios.post('http://localhost:3000/api/v1/compressors/hy0/rp1/device01', bodyData);
+      const response = await axios.post('http://localhost:3000/api/v1/K175/device_01/cabinet/differential/hy0', bodyData);
       setData((prevData) => ({
         ...prevData,
         differentials: {
@@ -229,7 +250,7 @@ const HomePage = () => {
     try {
       const bodyData = { differential: newHY1 };
 
-      const response = await axios.post('http://localhost:3000/api/v1/compressors/hy1/rp1/device01', bodyData);
+      const response = await axios.post('http://localhost:3000/api/v1/K175/device_01/cabinet/differential/hy1', bodyData);
       setData((prevData) => ({
         ...prevData,
         differentials: {
@@ -267,11 +288,11 @@ const HomePage = () => {
           <div className={styles.top_grid_label_row}>
             <div>
               <label className={styles.top_grid_medium_label}>T1</label>
-              <label className={styles.top_grid_small_label}>{data["temperatures"]["T1"]}</label>
+              <label className={styles.top_grid_small_label}>{data["probes"]["T1"]}</label>
             </div>
             <div>
               <label className={styles.top_grid_medium_label}>T2</label>
-              <label className={styles.top_grid_small_label}>{data["temperatures"]["T2"]}</label>
+              <label className={styles.top_grid_small_label}>{data["probes"]["T2"]}</label>
             </div>
           </div>
         </div>
@@ -284,7 +305,11 @@ const HomePage = () => {
             </div>
             <div className={ `${styles.top_grid_label_button_row} ${styles.customMarginLeft}`}>
               <label className={styles.top_grid_label}>DEFROST:</label>
-              <label className={ data["status"]["defrost_status"] === "ON" ? `${styles.top_grid_label_2} ${styles.active_btn_color}` : `${styles.top_grid_label_2} ${styles.inactive_btn_color}` } >{data["status"]["defrost_status"]}</label>
+              <button 
+                className={data["status"]["defrost_status"] === "ON" ? `${styles.top_grid_btn} ${styles.active_btn_color}` : `${styles.top_grid_btn} ${styles.inactive_btn_color}` }
+                value={data["status"]["defrost_status"] === "ON" ? "OFF" : "ON"}
+                onClick={activateDefrostCycle}
+            >{data["status"]["defrost_status"]}</button>
             </div>
           </div>
           <div className={styles.top_grid_label_row}>
@@ -426,13 +451,13 @@ const HomePage = () => {
           <div className={styles.changeable_label_container}>
             <label>T1</label>
           </div>
-          <h1 className={styles.changeable_settings_h1}>{data["temperatures"]["T1"]}º{unit}</h1>
+          <h1 className={styles.changeable_settings_h1}>{data["probes"]["T1"]}º{unit}</h1>
         </div>
         <div className={styles.changeable_settings_container}>
           <div className={styles.changeable_label_container}>
             <label>T2</label>
           </div>
-          <h1 className={styles.changeable_settings_h1}>{data["temperatures"]["T2"]}º{unit}</h1>
+          <h1 className={styles.changeable_settings_h1}>{data["probes"]["T2"]}º{unit}</h1>
         </div>
       </div>
     </div>
